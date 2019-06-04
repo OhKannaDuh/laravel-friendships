@@ -6,6 +6,8 @@ use Illuminate\Contracts\Console\Kernel;
 
 trait CreatesApplication
 {
+
+
     /**
      * Creates the application.
      *
@@ -13,7 +15,7 @@ trait CreatesApplication
      */
     public function createApplication()
     {
-        $app = require __DIR__.'/../vendor/laravel/laravel/bootstrap/app.php';
+        $app = require __DIR__ . '/../vendor/laravel/laravel/bootstrap/app.php';
 
         $app->make(Kernel::class)->bootstrap();
 

@@ -2,9 +2,8 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /*
  * Test User Personal Friend Groups
@@ -14,15 +13,18 @@ class FriendshipsGroupsTest extends TestCase
     use DatabaseTransactions;
 
 
-    /** @test */
-    public function user_can_add_a_friend_to_a_group()
+    /**
+     * Ensure friends can be added to groups.
+     */
+    public function testUserCanAddFriendToGroup(): void
     {
-
-        $sender    = createUser();
+        $sender = createUser();
         $recipient = createUser();
 
         $sender->befriend($recipient);
         $recipient->acceptFriendRequest($sender);
+
+
 
         $this->assertTrue((bool)$recipient->groupFriend($sender, 'acquaintances'));
         $this->assertTrue((bool)$sender->groupFriend($recipient, 'family'));
@@ -36,23 +38,28 @@ class FriendshipsGroupsTest extends TestCase
 
         $this->assertEquals($recipient->id, $sender->getFriends(0, 'family')->first()->id);
         $this->assertEquals($sender->id, $recipient->getFriends(0, 'acquaintances')->first()->id);
-
     }
 
-    /** @test */
-    public function user_cannot_add_a_non_friend_to_a_group()
+
+    /**
+     * Ensure
+     */
+    public function testUserCannotAddNonFriendToGroup(): void
     {
-        $sender   = createUser();
+        $sender = createUser();
         $stranger = createUser();
 
         $this->assertFalse((bool)$sender->groupFriend($stranger, 'family'));
         $this->assertCount(0, $sender->getFriends(0, 'family'));
     }
 
-    /** @test */
-    public function user_can_remove_a_friend_from_group()
+
+    /**
+     * Ensure friends can be removed from a group.
+     */
+    public function testUserCanRemoveFriendFromGroup(): void
     {
-        $sender    = createUser();
+        $sender = createUser();
         $recipient = createUser();
 
         $sender->befriend($recipient);
@@ -70,11 +77,14 @@ class FriendshipsGroupsTest extends TestCase
         $this->assertCount(1, $recipient->getFriends(0, 'family'));
     }
 
-    /** @test */
-    public function user_cannot_remove_a_non_existing_friend_from_group()
+
+    /**
+     * Ensure non-friends cannot be removed from a group.
+     */
+    public function testUserCannotRemoveNonExistingFriendFromGroup(): void
     {
-        $sender     = createUser();
-        $recipient  = createUser();
+        $sender = createUser();
+        $recipient = createUser();
         $recipient2 = createUser();
 
         $sender->befriend($recipient);
@@ -83,10 +93,13 @@ class FriendshipsGroupsTest extends TestCase
         $this->assertEquals(0, $recipient2->ungroupFriend($sender, 'acquaintances'));
     }
 
-    /** @test */
-    public function user_can_remove_a_friend_from_all_groups()
+
+    /**
+     * Ensure friends can be removed from all groups.
+     */
+    public function testUserCanRemoveFriendFromAllGroups(): void
     {
-        $sender    = createUser();
+        $sender = createUser();
         $recipient = createUser();
 
         $sender->befriend($recipient);
@@ -101,10 +114,13 @@ class FriendshipsGroupsTest extends TestCase
         $this->assertCount(0, $sender->getFriends(0, 'acquaintances'));
     }
 
-    /** @test */
-    public function it_returns_friends_of_a_group()
+
+    /**
+     * Ensure getFriends can be filtered by group.
+     */
+    public function testGetFriendsCanBeCorrectlyFilteredByGroup(): void
     {
-        $sender     = createUser();
+        $sender = createUser();
         $recipients = createUser([], 10);
 
         foreach ($recipients as $key => $recipient) {
@@ -115,7 +131,6 @@ class FriendshipsGroupsTest extends TestCase
             if ($key % 2 === 0) {
                 $sender->groupFriend($recipient, 'family');
             }
-
         }
 
         $this->assertCount(5, $sender->getFriends(0, 'family'));
@@ -123,13 +138,15 @@ class FriendshipsGroupsTest extends TestCase
     }
 
 
-    /** @test */
-    public function it_returns_all_user_friendships_by_group()
+    /**
+     * Ensure getAllFriendhips can be filtered by group.
+     */
+    public function testGetAllFriendshipsCanBeCorrectlyFilteredByGroup(): void
     {
-        $sender     = createUser();
+        $sender = createUser();
         $recipients = createUser([], 5);
 
-        foreach ($recipients as $key=>$recipient) {
+        foreach ($recipients as $key => $recipient) {
 
             $sender->befriend($recipient);
 
@@ -138,20 +155,15 @@ class FriendshipsGroupsTest extends TestCase
                 $recipient->acceptFriendRequest($sender);
                 if ($key < 3) {
                     $sender->groupFriend($recipient, 'acquaintances');
-                }
-                else {
+                } else {
                     $sender->groupFriend($recipient, 'family');
                 }
-
-            }
-            else {
+            } else {
                 $recipient->denyFriendRequest($sender);
             }
-
         }
 
         //Assertions
-
         $this->assertCount(3, $sender->getAllFriendships('acquaintances'));
         $this->assertCount(1, $sender->getAllFriendships('family'));
         $this->assertCount(0, $sender->getAllFriendships('close_friends'));
@@ -159,10 +171,12 @@ class FriendshipsGroupsTest extends TestCase
     }
 
 
-    /** @test */
-    public function it_returns_accepted_user_friendships_by_group()
+    /**
+     * Ensure accepted frienships can be filtered by group.
+     */
+    public function testItReturnsAcceptedUserFriendshipsByGroup(): void
     {
-        $sender     = createUser();
+        $sender = createUser();
         $recipients = createUser([], 4);
 
         foreach ($recipients as $recipient) {
@@ -177,13 +191,15 @@ class FriendshipsGroupsTest extends TestCase
         $sender->groupFriend($recipients[1], 'family');
 
         $this->assertCount(2, $sender->getAcceptedFriendships('family'));
-
     }
 
-    /** @test */
-    public function it_returns_accepted_user_friendships_number_by_group()
+
+    /**
+     * Ensure friendships can be counted by group.
+     */
+    public function testItReturnsAcceptedUserFriendshipsNumberByGroup(): void
     {
-        $sender     = createUser();
+        $sender = createUser();
         $recipients = createUser([], 20)->chunk(5);
 
         foreach ($recipients->shift() as $recipient) {
@@ -201,10 +217,12 @@ class FriendshipsGroupsTest extends TestCase
     }
 
 
-    /** @test */
-    public function it_returns_user_friends_by_group_per_page()
+    /**
+     * Ensure paginated friends can be filtered by group.
+     */
+    public function testItReturnsUserFriendsByGroupPerPage(): void
     {
-        $sender     = createUser();
+        $sender = createUser();
         $recipients = createUser([], 6);
 
         foreach ($recipients as $recipient) {
@@ -242,6 +260,4 @@ class FriendshipsGroupsTest extends TestCase
 
         $this->containsOnlyInstancesOf(\App\User::class, $sender->getFriends(0, 'acquaintances'));
     }
-
-
 }

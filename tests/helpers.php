@@ -1,4 +1,6 @@
 <?php
+
+
 /**
  * Create a user
  *
@@ -7,7 +9,8 @@
  *
  * @return \Illuminate\Database\Eloquent\Collection|\App\User[]|\App\User
  */
-function createUser($overrides = [], $amount = 1){
+function createUser($overrides = [], $amount = 1)
+{
     $users = factory(\App\User::class, $amount)->create($overrides);
     if (count($users) == 1) {
         return $users->first();

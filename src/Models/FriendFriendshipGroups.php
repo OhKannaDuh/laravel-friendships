@@ -22,14 +22,14 @@ class FriendFriendshipGroups extends Model
      */
     public $timestamps = false;
 
+
     /**
      * @param array $attributes
      */
-    public function __construct(array $attributes = array())
+    public function __construct(array $attributes = [])
     {
         $this->table = config('friendships.tables.fr_groups_pivot');
 
         parent::__construct($attributes);
     }
-
 }

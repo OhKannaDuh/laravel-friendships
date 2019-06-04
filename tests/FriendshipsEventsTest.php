@@ -2,67 +2,98 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Event;
 use Mockery;
 
 class FriendshipsEventsTest extends TestCase
 {
-    // use DatabaseTransactions;
 
+
+    /**
+     * @inheritDoc
+     */
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->sender    = createUser();
+        $this->sender = createUser();
         $this->recipient = createUser();
     }
 
+
+    /**
+     * @inheritDoc
+     */
     public function tearDown(): void
     {
         Mockery::close();
     }
 
-    /** @test */
-    public function friend_request_is_sent()
+
+    /**
+     * Ensure rriend requests are sent.
+     */
+    public function testFriendRequestIsSent(): void
     {
         Event::shouldReceive('dispatch')->once()->withArgs(['friendships.sent', Mockery::any()]);
 
         $this->sender->befriend($this->recipient);
+
+        // Prevent test being risky.
+        $this->assertTrue(true);
     }
 
-    /** @test */
-    public function friend_request_is_accepted()
+
+    /**
+     * Ensure friend requests are accepted.
+     */
+    public function testFriendRequestIsAccepted(): void
     {
         $this->sender->befriend($this->recipient);
         Event::shouldReceive('dispatch')->once()->withArgs(['friendships.accepted', Mockery::any()]);
 
         $this->recipient->acceptFriendRequest($this->sender);
+
+        // Prevent test being risky.
+        $this->assertTrue(true);
     }
 
-    /** @test */
-    public function friend_request_is_denied()
+
+    /**
+     * Ensure friend requests are denied.
+     */
+    public function testFriendRequestIsDenied(): void
     {
         $this->sender->befriend($this->recipient);
         Event::shouldReceive('dispatch')->once()->withArgs(['friendships.denied', Mockery::any()]);
 
         $this->recipient->denyFriendRequest($this->sender);
+
+        // Prevent test being risky.
+        $this->assertTrue(true);
     }
 
-    /** @test */
-    public function friend_is_blocked()
+
+    /**
+     * Ensure users can be blocked.
+     */
+    public function testFriendIsBlocked(): void
     {
         $this->sender->befriend($this->recipient);
         $this->recipient->acceptFriendRequest($this->sender);
         Event::shouldReceive('dispatch')->once()->withArgs(['friendships.blocked', Mockery::any()]);
 
         $this->recipient->blockFriend($this->sender);
+
+        // Prevent test being risky.
+        $this->assertTrue(true);
     }
 
-    /** @test */
-    public function friend_is_unblocked()
+
+    /**
+     * Ensure users a can be unblocked.
+     */
+    public function testFriendIsUnblocked(): void
     {
         $this->sender->befriend($this->recipient);
         $this->recipient->acceptFriendRequest($this->sender);
@@ -70,15 +101,24 @@ class FriendshipsEventsTest extends TestCase
         Event::shouldReceive('dispatch')->once()->withArgs(['friendships.unblocked', Mockery::any()]);
 
         $this->recipient->unblockFriend($this->sender);
+
+        // Prevent test being risky.
+        $this->assertTrue(true);
     }
 
-    /** @test */
-    public function friendship_is_cancelled()
+
+    /**
+     * Ensure friend requests can be cancelled.
+     */
+    public function testFriendshipIsCancelled(): void
     {
         $this->sender->befriend($this->recipient);
         $this->recipient->acceptFriendRequest($this->sender);
         Event::shouldReceive('dispatch')->once()->withArgs(['friendships.cancelled', Mockery::any()]);
 
         $this->recipient->unfriend($this->sender);
+
+        // Prevent test being risky.
+        $this->assertTrue(true);
     }
 }
